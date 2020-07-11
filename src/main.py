@@ -22,14 +22,20 @@ def switchOverlays():
     board1.switchOverlay()
     root.after(3000, switchOverlays)
 
+def scrollText():
+    board1.incrementTextScroll(1)
+    root.after(250, scrollText)
+
 root=Tk()
-root.geometry('1300x300')
-screen = Frame(root, background='red')
+root.geometry('800x480')
+screen = Frame(root, background='black')
 screen.grid_propagate(1)
 screen.pack(fill=BOTH, expand=1)
 board1 = TrainBoard(screen)
 root.after(150000, updateBoards)
 root.after(3000, switchOverlays)
+root.after(250, scrollText)
+
 timeVar = StringVar(root)
 timeText = Label(root, textvariable=timeVar, fg='orange', bg='black', font=('Dot Matrix', 50))
 timeText.pack(fill=BOTH, expand=1)
