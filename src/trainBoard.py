@@ -100,7 +100,6 @@ class TrainBoard:
         return ', '.join(callingPointsNames[:-1]) + ' and ' + callingPointsNames[-1] + '.'
 
     def incrementTextScroll(self, number):
-        print(self.scrollPosition)
         if self.scrollPosition <= 0:
             self.scrollPosition += number
             return
@@ -124,8 +123,6 @@ class TrainBoard:
             self.rowB2.delete('1.0', END)
             self.rowB2text = self.generateCallingPointsString(service['subsequentCallingPoints']['callingPointList'][0]['callingPoint'])
             self.rowB2.insert(END, self.rowB2text)
-            print(self.rowB2text)
-            print(len(self.rowB2text))
         except IndexError:
             self.rowA2text.set('NO SERVICE')
             self.rowA3text.set('')
