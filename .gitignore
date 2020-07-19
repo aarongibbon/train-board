@@ -1,2 +1,2 @@
 *.pyc
-testData.txt
+testData*.txt
