@@ -1,20 +1,20 @@
 from tkinter import *
-
+import time
 class TrainBoard:
 
     def __init__(self, root):
-
-        rowA = Frame(root, bg='black', width=1300)
-        rowB = Frame(root, bg='black', width=1300)
-        rowC = Frame(root, bg='black', width=1300)
-        rowD = Frame(root, bg='black', width=1300)
+        self.root = root
+        self.rowA = Frame(root, bg='black', width=1300)
+        self.rowB = Frame(root, bg='black', width=1300)
+        self.rowC = Frame(root, bg='black', width=1300)
+        self.rowD = Frame(root, bg='black', width=1300)
 
         root.grid_columnconfigure(0, weight=1)
 
-        rowA.grid(row=0, column=0, sticky="we")
-        rowB.grid(row=1, column=0, sticky="we")
-        rowD.grid(row=2, column=0, sticky="we")
-        rowC.grid(row=2, column=0, sticky="we")
+        self.rowA.grid(row=0, column=0, sticky="we")
+        self.rowB.grid(row=1, column=0, sticky="we")
+        self.rowD.grid(row=2, column=0, sticky="we")
+        self.rowC.grid(row=2, column=0, sticky="we")
 
         self.rowA2text = StringVar(root)
         self.rowA3text = StringVar(root)
@@ -31,9 +31,9 @@ class TrainBoard:
         self.rowD3text = StringVar(root)
         self.rowD4text = StringVar(root)
 
-        self.boardVars = [self.rowA2text, self.rowA3text, self.rowA4text, self.rowC2text, self.rowC3text, self.rowC4text, self.rowD2text, self.rowD3text, self.rowD4text]
+        self.overlayRows = [self.rowC, self.rowD]
 
-        self.overlayRows = [rowC, rowD]
+        self.currentServices = []
 
         boardFont='Dot Matrix'
         boardFontSize=30
@@ -43,53 +43,48 @@ class TrainBoard:
         self.scrollPosition = self.leadingScroll
         self.trailingSroll = 10
 
-        rowA1 = Label(rowA, text='1st', width=3, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        rowA1 = Label(self.rowA, text='1st', width=3, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowA1.pack(side=LEFT, padx=(0,20))
 
-        rowA2 = Label(rowA, textvariable=self.rowA2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        rowA2 = Label(self.rowA, textvariable=self.rowA2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowA2.pack(side=LEFT, padx=(0,20))
 
-        rowA3 = Label(rowA, textvariable=self.rowA3text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        rowA3 = Label(self.rowA, textvariable=self.rowA3text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowA3.pack(side=LEFT)
 
-        rowA4 = Label(rowA, textvariable=self.rowA4text, fg='orange', bg='black', anchor='e', font=(boardFont, boardFontSize))
+        rowA4 = Label(self.rowA, textvariable=self.rowA4text, fg='orange', bg='black', anchor='e', font=(boardFont, boardFontSize))
         rowA4.pack(side=RIGHT)
 
-        rowB1 = Label(rowB, textvariable=self.rowB1text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        rowB1 = Label(self.rowB, textvariable=self.rowB1text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowB1.pack(side=LEFT, padx=(0,20))
 
-        self.rowB2 = Text(rowB, wrap=NONE, height=1, fg='orange', bg='black', bd=-1, font=(boardFont, boardFontSize))
+        self.rowB2 = Text(self.rowB, wrap=NONE, height=1, fg='orange', bg='black', bd=-1, font=(boardFont, boardFontSize))
 
         self.rowB2.pack(side=LEFT)
 
-        rowC1 = Label(rowC, text='2nd', width=3, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        rowC1 = Label(self.rowC, text='2nd', width=3, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowC1.pack(side=LEFT, padx=(0,20))
 
-        rowC2 = Label(rowC, textvariable=self.rowC2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        rowC2 = Label(self.rowC, textvariable=self.rowC2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowC2.pack(side=LEFT, padx=(0,20))
 
-        rowC3 = Label(rowC, textvariable=self.rowC3text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        rowC3 = Label(self.rowC, textvariable=self.rowC3text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowC3.pack(side=LEFT)
 
-        rowC4 = Label(rowC, textvariable=self.rowC4text, fg='orange', bg='black', anchor='e', font=(boardFont, boardFontSize))
+        rowC4 = Label(self.rowC, textvariable=self.rowC4text, fg='orange', bg='black', anchor='e', font=(boardFont, boardFontSize))
         rowC4.pack(side=RIGHT)
 
-        rowD1 = Label(rowD, text='3rd', width=3, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        rowD1 = Label(self.rowD, text='3rd', width=3, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowD1.pack(side=LEFT, padx=(0,20))
 
-        rowD2 = Label(rowD, textvariable=self.rowD2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        rowD2 = Label(self.rowD, textvariable=self.rowD2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowD2.pack(side=LEFT, padx=(0,20))
 
-        rowD3 = Label(rowD, textvariable=self.rowD3text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        rowD3 = Label(self.rowD, textvariable=self.rowD3text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowD3.pack(side=LEFT)
 
-        rowD4 = Label(rowD, textvariable=self.rowD4text, fg='orange', bg='black', anchor='e', font=(boardFont, boardFontSize))
+        rowD4 = Label(self.rowD, textvariable=self.rowD4text, fg='orange', bg='black', anchor='e', font=(boardFont, boardFontSize))
         rowD4.pack(side=RIGHT)
-
-
-    def clearBoard(self):
-        for var in self.boardVars:
-            var.set(' ')
 
     def switchOverlay(self):
         self.overlayRows.reverse()
@@ -112,7 +107,32 @@ class TrainBoard:
             self.scrollPosition += number
             self.rowB2.xview(MOVETO, self.scrollPosition/len(self.rowB2text))
 
+    def hideRows(self):
+        self.rowA.grid_remove()
+        self.rowB.grid_remove()
+        self.rowC.grid_remove()
+        self.rowD.grid_remove()
+
+    def showRows(self):
+        self.rowA.grid()
+        self.rowB.grid()
+        self.rowC.grid()
+        self.rowD.grid()
+
     def setData(self, services):
+        '''
+        A wrapper around setData2 so that we can hide data and create a callback to setData2 
+        in the event of a change to service, simulating a momentary blank screen without halting
+        the rest of the program.
+        '''
+        if services[:3] == self.currentServices:
+            return
+        else:
+            self.hideRows()
+            self.root.after(500, self.setData2, services)
+
+    def setData2(self, services):
+
         try:
             service = services[0]
             self.rowA2text.set(service['std'])
@@ -147,3 +167,6 @@ class TrainBoard:
             self.rowD2text.set('NO SERVICE')
             self.rowD3text.set('')
             self.rowD4text.set('')
+
+        self.currentServices = services[:3]
+        self.showRows()
