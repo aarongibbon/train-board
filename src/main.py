@@ -36,6 +36,7 @@ def scrollText():
 root=Tk()
 root.configure(background='black')
 root.geometry('800x480')
+root.attributes('-type', 'dock')
 platform1 = Label(root, text=' 1 ', fg='black', bg='white', font=('Times New Roman', 30, 'bold'))
 platform1.pack(anchor=W)
 screen = Frame(root, background='black')
