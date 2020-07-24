@@ -59,7 +59,6 @@ class TrainBoard:
         rowB1.pack(side=LEFT, padx=(0,20))
 
         self.rowB2 = Text(self.rowB, wrap=NONE, height=1, fg='orange', bg='black', bd=-1, font=(boardFont, boardFontSize))
-
         self.rowB2.pack(side=LEFT)
 
         rowC1 = Label(self.rowC, text='2nd', width=3, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
@@ -125,7 +124,14 @@ class TrainBoard:
         in the event of a change to service, simulating a momentary blank screen without halting
         the rest of the program.
         '''
-        if services[:3] == self.currentServices:
+
+        # If services is [] (no services) and currentServices is [], it could be that the app
+        # has just started up and its late at night (so no further services). We still want
+        # want to set data in this scenario to display NO SERVICE.
+        if services == [] and self.currentServices == []:
+            self.setData2(services)
+            return
+        elif services[:3] == self.currentServices:
             return
         else:
             self.hideRows()

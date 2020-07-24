@@ -7,15 +7,19 @@ from datetime import datetime
 import json
 import ast
 
+def loadConfig():
+    with open('../config.json', 'r') as programConfig:
+        config = json.load(programConfig)
+        return config
+
 def updateClock():
     timeVar.set(datetime.now().strftime("%H:%M:%S"))
     root.after(500, updateClock)
  
 def updateBoards():
-    #board1.setData(trainApi.getStationArrivalsDepartures('<station>')['service'])
-    #board2.setData(trainApi.getStationArrivalsDepartures('<station>')['service'])
-    board1.setData(returnServicesForPlatform(test_data2, '1'))
-    board2.setData(returnServicesForPlatform(test_data, '2'))
+    stationData = trainApi.getStationArrivalsDepartures(station)['service']
+    board1.setData(returnServicesForPlatform(stationData, '1'))
+    board2.setData(returnServicesForPlatform(stationData, '2'))
     print('updated screen...')
     print(datetime.now())
     root.after(15000, updateBoards)
@@ -32,6 +36,10 @@ def scrollText():
     board1.incrementTextScroll(1)
     board2.incrementTextScroll(1)
     root.after(250, scrollText)
+
+config = loadConfig()
+
+station = config['stationCode']
 
 root=Tk()
 root.configure(background='black')
@@ -59,14 +67,14 @@ timeText = Label(root, textvariable=timeVar, fg='orange', bg='black', font=('Dot
 timeText.pack(fill=BOTH, expand=1)
 timeText.after(500, updateClock)
 
-with open('../data/testData.txt') as data_file:
-    test_data=ast.literal_eval(data_file.read())
+#with open('../data/testDataDoubleNoService.txt') as data_file:
+#    test_data=ast.literal_eval(data_file.read())
 
-with open('../data/testData2.txt') as data_file:
-    test_data2=ast.literal_eval(data_file.read())
+#with open('../data/testData2.txt') as data_file:
+#    test_data2=ast.literal_eval(data_file.read())
 
-trainApi = TrainApi("<token>")
-#board1.setData(trainApi.getStationArrivalsDepartures('<station>')['service'])
-board1.setData(returnServicesForPlatform(test_data, '1'))
-board2.setData(returnServicesForPlatform(test_data, '2'))
+trainApi = TrainApi(config['apiToken'])
+stationData = trainApi.getStationArrivalsDepartures(station)['service']
+board1.setData(returnServicesForPlatform(stationData, '1'))
+board2.setData(returnServicesForPlatform(stationData, '2'))
 root.mainloop()

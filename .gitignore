@@ -1,2 +1,3 @@
 *.pyc
 testData*.txt
+config.json
