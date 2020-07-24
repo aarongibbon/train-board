@@ -46,8 +46,8 @@ class TrainBoard:
         rowA1 = Label(self.rowA, text='1st', width=3, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowA1.pack(side=LEFT, padx=(0,20))
 
-        rowA2 = Label(self.rowA, textvariable=self.rowA2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
-        rowA2.pack(side=LEFT, padx=(0,20))
+        self.rowA2 = Label(self.rowA, textvariable=self.rowA2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        self.rowA2.pack(side=LEFT, padx=(0,20))
 
         rowA3 = Label(self.rowA, textvariable=self.rowA3text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowA3.pack(side=LEFT)
@@ -64,20 +64,20 @@ class TrainBoard:
         rowC1 = Label(self.rowC, text='2nd', width=3, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowC1.pack(side=LEFT, padx=(0,20))
 
-        rowC2 = Label(self.rowC, textvariable=self.rowC2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
-        rowC2.pack(side=LEFT, padx=(0,20))
+        self.rowC2 = Label(self.rowC, textvariable=self.rowC2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        self.rowC2.pack(side=LEFT, padx=(0,20))
 
-        rowC3 = Label(self.rowC, textvariable=self.rowC3text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
-        rowC3.pack(side=LEFT)
+        self.rowC3 = Label(self.rowC, textvariable=self.rowC3text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        self.rowC3.pack(side=LEFT)
 
-        rowC4 = Label(self.rowC, textvariable=self.rowC4text, fg='orange', bg='black', anchor='e', font=(boardFont, boardFontSize))
-        rowC4.pack(side=RIGHT)
+        self.rowC4 = Label(self.rowC, textvariable=self.rowC4text, fg='orange', bg='black', anchor='e', font=(boardFont, boardFontSize))
+        self.rowC4.pack(side=RIGHT)
 
         rowD1 = Label(self.rowD, text='3rd', width=3, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowD1.pack(side=LEFT, padx=(0,20))
 
-        rowD2 = Label(self.rowD, textvariable=self.rowD2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
-        rowD2.pack(side=LEFT, padx=(0,20))
+        self.rowD2 = Label(self.rowD, textvariable=self.rowD2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        self.rowD2.pack(side=LEFT, padx=(0,20))
 
         rowD3 = Label(self.rowD, textvariable=self.rowD3text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowD3.pack(side=LEFT)
@@ -141,6 +141,7 @@ class TrainBoard:
 
         try:
             service = services[0]
+            self.rowA2.config(width=5)
             self.rowA2text.set(service['std'])
             self.rowA3text.set(service['destination']['location'][0]['locationName'])
             self.rowA4text.set(service['etd'])
@@ -151,26 +152,31 @@ class TrainBoard:
             self.rowB2.insert(END, self.rowB2text)
         except IndexError:
             self.rowA2text.set('NO SERVICE')
+            self.rowA2.config(width=10)
             self.rowA3text.set('')
             self.rowA4text.set('')
 
         try:
             service = services[1]
+            self.rowC2.config(width=5)
             self.rowC2text.set(service['std'])
             self.rowC3text.set(service['destination']['location'][0]['locationName'])
             self.rowC4text.set(service['etd'])
         except IndexError:
             self.rowC2text.set('NO SERVICE')
+            self.rowC2.config(width=10)
             self.rowC3text.set('')
             self.rowC4text.set('')
 
         try:
             service = services[2]
+            self.rowD2.config(width=5)
             self.rowD2text.set(service['std'])
             self.rowD3text.set(service['destination']['location'][0]['locationName'])
             self.rowD4text.set(service['etd'])
         except IndexError:
             self.rowD2text.set('NO SERVICE')
+            self.rowD2.config(width=10)
             self.rowD3text.set('')
             self.rowD4text.set('')
 
