@@ -20,8 +20,6 @@ def updateBoards():
     stationData = trainApi.getStationArrivalsDepartures(station)['service']
     board1.setData(returnServicesForPlatform(stationData, '1'))
     board2.setData(returnServicesForPlatform(stationData, '2'))
-    print('updated screen...')
-    print(datetime.now())
     root.after(15000, updateBoards)
 
 def switchOverlays():
@@ -46,13 +44,13 @@ root.configure(background='black', cursor='none')
 root.geometry('800x480')
 root.attributes('-type', 'dock')
 platform1 = Label(root, text=' 1 ', fg='black', bg='white', font=('Times New Roman', 30, 'bold'))
-platform1.pack(anchor=W)
+platform1.pack(anchor=W, pady=(0,15))
 screen = Frame(root, background='black')
 screen.grid_propagate(1)
 screen.pack(fill=BOTH, expand=1)
 
 platform2 = Label(root, text=' 2 ', fg='black', bg='white', font=('Times New Roman', 30, 'bold'))
-platform2.pack(anchor=E)
+platform2.pack(anchor=E, pady=(0,15))
 screen2 = Frame(root, background='black')
 screen2.grid_propagate(1)
 screen2.pack(fill=BOTH, expand=1)
