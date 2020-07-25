@@ -1,5 +1,43 @@
 from tkinter import *
 import time
+
+class ServiceRow:
+
+    def __init__(self, root, position):
+        boardFont='Dot Matrix'
+        boardFontSize=30
+
+        root = root
+
+        self.departureTimeText = StringVar(root)
+        self.destinationText = StringVar(root)
+        self.statusText = StringVar(root)
+
+        position = Label(root, text=position, width=3, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        position.pack(side=LEFT, padx=(0,20))
+
+        self.departureTime = Label(root, textvariable=self.departureTimeText, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        self.departureTime.pack(side=LEFT, padx=(0,20))
+
+        self.destination = Label(root, textvariable=self.destinationText, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
+        self.destination.pack(side=LEFT)
+
+        self.status = Label(root, textvariable=self.statusText, fg='orange', bg='black', anchor='e', font=(boardFont, boardFontSize))
+        self.status.pack(side=RIGHT)
+
+    def update(self, departureTime, destination, status):
+        self.departureTime.config(width=5)
+        self.departureTimeText.set(departureTime)
+        self.destinationText.set(destination)
+        self.statusText.set(status)
+
+    def setNoService(self):
+        self.departureTime.config(width=10)
+        self.departureTimeText.set('NO SERVICE')
+        self.destinationText.set('')
+        self.statusText.set('')
+
+
 class TrainBoard:
 
     def __init__(self, root):
@@ -16,20 +54,12 @@ class TrainBoard:
         self.rowD.grid(row=2, column=0, sticky="we")
         self.rowC.grid(row=2, column=0, sticky="we")
 
-        self.rowA2text = StringVar(root)
-        self.rowA3text = StringVar(root)
-        self.rowA4text = StringVar(root)
+        self.service1st = ServiceRow(self.rowA, '1st')
+        self.service2nd = ServiceRow(self.rowC, '2nd')
+        self.service3rd = ServiceRow(self.rowD, '3rd')
 
         self.rowB1text = StringVar(root)
         self.rowB2text = StringVar(root)
-
-        self.rowC2text = StringVar(root)
-        self.rowC3text = StringVar(root)
-        self.rowC4text = StringVar(root)
-
-        self.rowD2text = StringVar(root)
-        self.rowD3text = StringVar(root)
-        self.rowD4text = StringVar(root)
 
         self.overlayRows = [self.rowC, self.rowD]
 
@@ -43,47 +73,11 @@ class TrainBoard:
         self.scrollPosition = self.leadingScroll
         self.trailingSroll = 10
 
-        rowA1 = Label(self.rowA, text='1st', width=3, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
-        rowA1.pack(side=LEFT, padx=(0,20))
-
-        self.rowA2 = Label(self.rowA, textvariable=self.rowA2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
-        self.rowA2.pack(side=LEFT, padx=(0,20))
-
-        rowA3 = Label(self.rowA, textvariable=self.rowA3text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
-        rowA3.pack(side=LEFT)
-
-        rowA4 = Label(self.rowA, textvariable=self.rowA4text, fg='orange', bg='black', anchor='e', font=(boardFont, boardFontSize))
-        rowA4.pack(side=RIGHT)
-
         rowB1 = Label(self.rowB, textvariable=self.rowB1text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
         rowB1.pack(side=LEFT, padx=(0,20))
 
         self.rowB2 = Text(self.rowB, wrap=NONE, height=1, fg='orange', bg='black', bd=-1, font=(boardFont, boardFontSize))
         self.rowB2.pack(side=LEFT)
-
-        rowC1 = Label(self.rowC, text='2nd', width=3, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
-        rowC1.pack(side=LEFT, padx=(0,20))
-
-        self.rowC2 = Label(self.rowC, textvariable=self.rowC2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
-        self.rowC2.pack(side=LEFT, padx=(0,20))
-
-        self.rowC3 = Label(self.rowC, textvariable=self.rowC3text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
-        self.rowC3.pack(side=LEFT)
-
-        self.rowC4 = Label(self.rowC, textvariable=self.rowC4text, fg='orange', bg='black', anchor='e', font=(boardFont, boardFontSize))
-        self.rowC4.pack(side=RIGHT)
-
-        rowD1 = Label(self.rowD, text='3rd', width=3, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
-        rowD1.pack(side=LEFT, padx=(0,20))
-
-        self.rowD2 = Label(self.rowD, textvariable=self.rowD2text, width=5, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
-        self.rowD2.pack(side=LEFT, padx=(0,20))
-
-        rowD3 = Label(self.rowD, textvariable=self.rowD3text, fg='orange', bg='black', anchor='w', font=(boardFont, boardFontSize))
-        rowD3.pack(side=LEFT)
-
-        rowD4 = Label(self.rowD, textvariable=self.rowD4text, fg='orange', bg='black', anchor='e', font=(boardFont, boardFontSize))
-        rowD4.pack(side=RIGHT)
 
     def switchOverlay(self):
         self.overlayRows.reverse()
@@ -118,6 +112,12 @@ class TrainBoard:
         self.rowC.grid()
         self.rowD.grid()
 
+    def extractDataFromService(self, service):
+        departureTime = service['std']
+        destination = service['destination']['location'][0]['locationName']
+        status = service['etd']
+        return departureTime, destination, status
+
     def setData(self, services):
         '''
         A wrapper around setData2 so that we can hide data and create a callback to setData2 
@@ -141,44 +141,29 @@ class TrainBoard:
 
         try:
             service = services[0]
-            self.rowA2.config(width=5)
-            self.rowA2text.set(service['std'])
-            self.rowA3text.set(service['destination']['location'][0]['locationName'])
-            self.rowA4text.set(service['etd'])
+            departureTime, destination, status = self.extractDataFromService(service)
+            self.service1st.update(departureTime, destination, status)
 
             self.rowB1text.set('Calling at:')
             self.rowB2.delete('1.0', END)
             self.rowB2text = self.generateCallingPointsString(service['subsequentCallingPoints']['callingPointList'][0]['callingPoint'])
             self.rowB2.insert(END, self.rowB2text)
         except IndexError:
-            self.rowA2text.set('NO SERVICE')
-            self.rowA2.config(width=10)
-            self.rowA3text.set('')
-            self.rowA4text.set('')
+            self.service1st.setNoService()
 
         try:
             service = services[1]
-            self.rowC2.config(width=5)
-            self.rowC2text.set(service['std'])
-            self.rowC3text.set(service['destination']['location'][0]['locationName'])
-            self.rowC4text.set(service['etd'])
+            departureTime, destination, status = self.extractDataFromService(service)
+            self.service2nd.update(departureTime, destination, status)
         except IndexError:
-            self.rowC2text.set('NO SERVICE')
-            self.rowC2.config(width=10)
-            self.rowC3text.set('')
-            self.rowC4text.set('')
+            self.service2nd.setNoService()
 
         try:
             service = services[2]
-            self.rowD2.config(width=5)
-            self.rowD2text.set(service['std'])
-            self.rowD3text.set(service['destination']['location'][0]['locationName'])
-            self.rowD4text.set(service['etd'])
+            departureTime, destination, status = self.extractDataFromService(service)
+            self.service3rd.update(departureTime, destination, status)
         except IndexError:
-            self.rowD2text.set('NO SERVICE')
-            self.rowD2.config(width=10)
-            self.rowD3text.set('')
-            self.rowD4text.set('')
+            self.service3rd.setNoService()
 
         self.currentServices = services[:3]
         self.showRows()
