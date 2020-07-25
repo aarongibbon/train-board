@@ -6,9 +6,10 @@ import time
 from datetime import datetime
 import json
 import ast
+import os
 
 def loadConfig():
-    with open('../config.json', 'r') as programConfig:
+    with open(os.path.dirname(__file__)+'/../config.json', 'r') as programConfig:
         config = json.load(programConfig)
         return config
 
