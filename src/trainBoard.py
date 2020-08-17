@@ -93,7 +93,6 @@ class TrainBoard:
             return
         elif self.scrollPosition == len(self.rowB2text):
             self.scrollPosition = self.leadingScroll
-#            self.rowB2.xview_moveto(1)
             self.rowB2.xview_scroll(-len(self.rowB2text)-1, UNITS)
             return
         else:
@@ -148,6 +147,7 @@ class TrainBoard:
             self.rowB2.delete('1.0', END)
             self.rowB2text = self.generateCallingPointsString(service['subsequentCallingPoints']['callingPointList'][0]['callingPoint'])
             self.rowB2.insert(END, self.rowB2text)
+            self.scrollPosition = self.leadingScroll
         except IndexError:
             self.service1st.setNoService()
 
