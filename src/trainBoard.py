@@ -85,7 +85,10 @@ class TrainBoard:
 
     def generateCallingPointsString(self, callingPoints):
         callingPointsNames = [ callingPoint['locationName'] for callingPoint in callingPoints ]
-        return ', '.join(callingPointsNames[:-1]) + ' and ' + callingPointsNames[-1] + '.'
+        if len(callingPointsNames) == 1:
+            return callingPointsNames[0]
+        else:
+            return ', '.join(callingPointsNames[:-1]) + ' and ' + callingPointsNames[-1] + '.'
 
     def incrementTextScroll(self, number):
         if self.scrollPosition <= 0:
