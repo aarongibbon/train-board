@@ -1,20 +1,14 @@
-from zeep import Client
-from zeep import xsd
+import requests
+import json
 
 class TrainApi():
 
     def __init__(self, apiToken):
-        api_url = "https://lite.realtime.nationalrail.co.uk/OpenLDBWS/wsdl.aspx?ver=2017-10-01"
-        header_template = xsd.Element(
-                '{http://thalesgroup.com/RTTI/2013-11-28/Token/types}AccessToken',
-                xsd.ComplexType([
-                    xsd.Element(
-                        '{http://thalesgroup.com/RTTI/2013-11-28/Token/types}TokenValue',
-                        xsd.String()),
-                ])
-        )
-        self.client = Client(api_url)
-        self.soapHeaders = header_template(TokenValue=apiToken)
+        self.api_url = "https://api1.raildata.org.uk/1010-live-arrival-and-departure-boards-arr-and-dep1_1/LDBWS/api/20220120/GetArrDepBoardWithDetails/"
+        self.headers = {"x-apikey": apiToken}
+        self.headers["User-Agent"] = "curl/8.5.0"
+
 
     def getStationArrivalsDepartures(self, station):
-        return self.client.service.GetArrDepBoardWithDetails(numRows=10, crs=station, timeWindow=120, _soapheaders=[self.soapHeaders])['trainServices']
+        response = requests.get(self.api_url+station, headers=self.headers)
+        return response.json()

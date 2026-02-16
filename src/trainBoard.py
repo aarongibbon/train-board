@@ -4,7 +4,7 @@ import time
 class ServiceRow:
 
     def __init__(self, root, position):
-        boardFont='Dot Matrix'
+        boardFont='London Underground'
         boardFontSize=30
 
         root = root
@@ -65,7 +65,7 @@ class TrainBoard:
 
         self.currentServices = []
 
-        boardFont='Dot Matrix'
+        boardFont='London Underground'
         boardFontSize=30
 
         self.rowB2text = ""
@@ -116,7 +116,7 @@ class TrainBoard:
 
     def extractDataFromService(self, service):
         departureTime = service['std']
-        destination = service['destination']['location'][0]['locationName']
+        destination = service['destination'][0]['locationName']
         status = service['etd']
         return departureTime, destination, status
 
@@ -148,7 +148,7 @@ class TrainBoard:
 
             self.rowB1text.set('Calling at:')
             self.rowB2.delete('1.0', END)
-            self.rowB2text = self.generateCallingPointsString(service['subsequentCallingPoints']['callingPointList'][0]['callingPoint'])
+            self.rowB2text = self.generateCallingPointsString(service['subsequentCallingPoints'][0]['callingPoint'])
             self.rowB2.insert(END, self.rowB2text)
             self.scrollPosition = self.leadingScroll
         except IndexError:

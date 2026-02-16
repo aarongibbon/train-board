@@ -18,7 +18,8 @@ def updateClock():
     root.after(500, updateClock)
  
 def updateBoards():
-    stationData = trainApi.getStationArrivalsDepartures(station)['service']
+    print("updated")
+    stationData = trainApi.getStationArrivalsDepartures(station)['trainServices']
     board1.setData(returnServicesForPlatform(stationData, '1'))
     board2.setData(returnServicesForPlatform(stationData, '2'))
     root.after(15000, updateBoards)
@@ -29,7 +30,7 @@ def switchOverlays():
     root.after(3000, switchOverlays)
 
 def returnServicesForPlatform(stationServices, platform):
-    return [service for service in stationServices if service['platform'] == str(platform)]
+    return [service for service in stationServices if service.get("platform", "") == str(platform)]
 
 def scrollText():
     board1.incrementTextScroll(1)
@@ -62,7 +63,7 @@ root.after(3000, switchOverlays)
 root.after(250, scrollText)
 
 timeVar = StringVar(root)
-timeText = Label(root, textvariable=timeVar, fg='orange', bg='black', font=('Dot Matrix', 30))
+timeText = Label(root, textvariable=timeVar, fg='orange', bg='black', font=('London Underground', 30))
 timeText.pack(fill=BOTH, expand=1)
 timeText.after(500, updateClock)
 
@@ -72,8 +73,8 @@ timeText.after(500, updateClock)
 #with open('../data/testData2.txt') as data_file:
 #    test_data2=ast.literal_eval(data_file.read())
 
-trainApi = TrainApi(config['apiToken'])
-stationData = trainApi.getStationArrivalsDepartures(station)['service']
+trainApi = TrainApi(config['api_token'])
+stationData = trainApi.getStationArrivalsDepartures(station).get('trainServices', [])
 board1.setData(returnServicesForPlatform(stationData, '1'))
 board2.setData(returnServicesForPlatform(stationData, '2'))
 root.mainloop()
