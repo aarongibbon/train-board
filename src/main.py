@@ -7,6 +7,7 @@ from datetime import datetime
 import json
 import ast
 import os
+import argparse
 
 def loadConfig():
     with open(os.path.dirname(__file__)+'/../config.json', 'r') as programConfig:
@@ -19,9 +20,13 @@ def updateClock():
  
 def updateBoards():
     print("updated")
-    stationData = trainApi.getStationArrivalsDepartures(station)['trainServices']
-    board1.setData(returnServicesForPlatform(stationData, '1'))
-    board2.setData(returnServicesForPlatform(stationData, '2'))
+    if args.test:
+        with open("../data/test_data.json", "r") as json_file:
+            station_data = json.load(json_file)
+    else:
+        station_data = trainApi.getStationArrivalsDepartures(station)['trainServices']
+    board1.setData(returnServicesForPlatform(station_data, '1'))
+    board2.setData(returnServicesForPlatform(station_data, '2'))
     root.after(15000, updateBoards)
 
 def switchOverlays():
@@ -38,8 +43,11 @@ def scrollText():
     root.after(250, scrollText)
 
 config = loadConfig()
-
 station = config['stationCode']
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-t','--test', action="store_true")
+args = parser.parse_args()
 
 root=Tk()
 root.configure(background='black', cursor='none')
@@ -67,14 +75,14 @@ timeText = Label(root, textvariable=timeVar, fg='orange', bg='black', font=('Lon
 timeText.pack(fill=BOTH, expand=1)
 timeText.after(500, updateClock)
 
-#with open('../data/testDataDoubleNoService.txt') as data_file:
-#    test_data=ast.literal_eval(data_file.read())
-
-#with open('../data/testData2.txt') as data_file:
-#    test_data2=ast.literal_eval(data_file.read())
+trainApi = TrainApi(config['api_token'])
+if args.test:
+    with open("../data/test_data.json", "r") as json_file:
+        station_data = json.load(json_file)
+else:
+    station_data = trainApi.getStationArrivalsDepartures(station).get('trainServices', []) 
 
 trainApi = TrainApi(config['api_token'])
-stationData = trainApi.getStationArrivalsDepartures(station).get('trainServices', [])
-board1.setData(returnServicesForPlatform(stationData, '1'))
-board2.setData(returnServicesForPlatform(stationData, '2'))
+board1.setData(returnServicesForPlatform(station_data, '1'))
+board2.setData(returnServicesForPlatform(station_data, '2'))
 root.mainloop()
