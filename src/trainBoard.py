@@ -128,10 +128,17 @@ class StationBoard:
             logger.info(f"Loaded {len(station_data)} services from test data")
         else:
             logger.info(f"Fetching live data for station: {self.station}")
-            station_data = self.trainApi.getStationArrivalsDepartures(self.station)[
-                "trainServices"
-            ]
-            logger.info(f"Received {len(station_data)} services from API")
+            try:
+                response = self.trainApi.getStationArrivalsDepartures(self.station)
+                if "trainServices" not in response:
+                    logger.warning(
+                        f"'trainServices' key not found in API response. Full response: {json.dumps(response)}"
+                    )
+                station_data = response.get("trainServices", [])
+                logger.info(f"Received {len(station_data)} services from API")
+            except Exception as e:
+                logger.error(f"Error fetching station data: {e}")
+                station_data = []
 
         for board in self.platform_boards:
             board.setData(
@@ -321,6 +328,10 @@ class TrainBoard:
             self.setData2(services)
             return
         elif services[:3] == self.currentServices:
+            logger.info(f"No change in services, not updating display")
+            logger.info(
+                f"Full retrieved service data: {json.dumps(services, default=str)}"
+            )
             return
         else:
             self.hideRows()
