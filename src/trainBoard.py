@@ -130,12 +130,13 @@ class StationBoard:
             logger.info(f"Fetching live data for station: {self.station}")
             try:
                 response = self.trainApi.getStationArrivalsDepartures(self.station)
-                if "trainServices" not in response:
-                    logger.warning(
-                        f"'trainServices' key not found in API response. Full response: {json.dumps(response)}"
-                    )
-                station_data = response.get("trainServices", [])
-                logger.info(f"Received {len(station_data)} services from API")
+                logger.info(f"API response keys: {list(response.keys())}")
+                train_services = response.get("trainServices", [])
+                bus_services = response.get("busServices", [])
+                station_data = train_services + bus_services
+                logger.info(
+                    f"Received {len(train_services)} train services and {len(bus_services)} bus services from API"
+                )
             except Exception as e:
                 logger.error(f"Error fetching station data: {e}")
                 station_data = []
@@ -312,6 +313,7 @@ class TrainBoard:
             "callingPoints": service.get("subsequentCallingPoints", [{}])[0].get(
                 "callingPoint", []
             ),
+            "serviceType": service.get("serviceType"),
         }
 
     def setData(self, services):
