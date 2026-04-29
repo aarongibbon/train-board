@@ -1,9 +1,12 @@
 import json
+import logging
 import os
 from datetime import datetime
 from tkinter import *
 
 from trains import TrainApi
+
+logger = logging.getLogger("station_board")
 
 BOARD_FONT = "London Underground"
 BOARD_FONT_SIZE = 24
@@ -82,7 +85,6 @@ class StationBoard:
         station_board_width = platform_board_width
         station_board_height = platform_count * platform_board_height
 
-
         root = Tk()
         root.overrideredirect(True)
         root.configure(background="black", cursor="none", menu="")
@@ -117,14 +119,19 @@ class StationBoard:
         self.root.mainloop()
 
     def updateBoards(self):
-        print("updated")
         if self.test:
-            with open(os.path.dirname(__file__) + "/../data/test_data.json", "r") as json_file:
+            logger.info("Loading test data")
+            with open(
+                os.path.dirname(__file__) + "/../data/test_data.json", "r"
+            ) as json_file:
                 station_data = json.load(json_file)
+            logger.info(f"Loaded {len(station_data)} services from test data")
         else:
+            logger.info(f"Fetching live data for station: {self.station}")
             station_data = self.trainApi.getStationArrivalsDepartures(self.station)[
                 "trainServices"
             ]
+            logger.info(f"Received {len(station_data)} services from API")
 
         for board in self.platform_boards:
             board.setData(
@@ -173,8 +180,6 @@ class TrainBoard:
             "<Configure>",
             lambda event: draw_platform_number(platform_number, platform_canvas, event),
         )
-        # platform_label = PlatformLabel(screen, platform_number)
-        # platform.pack(anchor=W, pady=(0,15))
 
         self.root = screen
         self.rowA = Frame(screen, bg="black")
@@ -284,10 +289,23 @@ class TrainBoard:
         self.rowE.grid()
 
     def extractDataFromService(self, service):
-        departureTime = service["std"]
-        destination = service["destination"][0]["locationName"]
-        status = service["etd"]
-        return departureTime, destination, status
+        """
+        Extract all relevant data from a service object.
+
+        Returns:
+            dict: Service data including departure time, destination, status,
+                  carriages, operator, and calling points
+        """
+        return {
+            "departureTime": service["std"],
+            "destination": service["destination"][0]["locationName"],
+            "status": service["etd"],
+            "carriages": service.get("length", 0),
+            "operator": service.get("operator", "Unknown"),
+            "callingPoints": service.get("subsequentCallingPoints", [{}])[0].get(
+                "callingPoint", []
+            ),
+        }
 
     def setData(self, services):
         """
@@ -308,41 +326,44 @@ class TrainBoard:
             self.hideRows()
             self.root.after(500, self.setData2, services)
 
-    def setData2(self, services):
+    def process_service(self, service_index, service_row, services):
+        """
+        Process and display a single service.
 
+        Args:
+            service_index: 0, 1, or 2 (service position)
+            service_row: ServiceRow object to update
+            services: List of service objects
+        """
         try:
-            service = services[0]
-            departureTime, destination, status = self.extractDataFromService(service)
-            self.service1st.update(departureTime, destination, status)
-
-            self.rowB1text.set("Calling at:")
-            # self.rowB2.delete(0, END)
-            self.rowB2text.set(
-                self.generateCallingPointsString(
-                    service["subsequentCallingPoints"][0]["callingPoint"]
-                )
+            service = services[service_index]
+            data = self.extractDataFromService(service)
+            logger.info(
+                f"Extracted data for service {service_index + 1}: {json.dumps(data)}"
             )
-            self.scrollPosition = self.leadingScroll
+            service_row.update(
+                data["departureTime"], data["destination"], data["status"]
+            )
 
-            self.rowC._num_carriages = service.get("length", 0)
-            draw_carriages(self.rowC)
+            # Special handling for primary service (index 0)
+            if service_index == 0:
+                self.rowB1text.set("Calling at:")
+                self.rowB2text.set(
+                    self.generateCallingPointsString(data["callingPoints"])
+                )
+                self.scrollPosition = self.leadingScroll
+                self.rowC._num_carriages = data["carriages"]
+                draw_carriages(self.rowC)
         except IndexError:
-            self.service1st.setNoService()
-            self.rowC.delete("all")
+            logger.info(f"No service {service_index + 1} available")
+            service_row.setNoService()
+            if service_index == 0:
+                self.rowC.delete("all")
 
-        try:
-            service = services[1]
-            departureTime, destination, status = self.extractDataFromService(service)
-            self.service2nd.update(departureTime, destination, status)
-        except IndexError:
-            self.service2nd.setNoService()
-
-        try:
-            service = services[2]
-            departureTime, destination, status = self.extractDataFromService(service)
-            self.service3rd.update(departureTime, destination, status)
-        except IndexError:
-            self.service3rd.setNoService()
+    def setData2(self, services):
+        self.process_service(0, self.service1st, services)
+        self.process_service(1, self.service2nd, services)
+        self.process_service(2, self.service3rd, services)
 
         self.currentServices = services[:3]
         self.showRows()
