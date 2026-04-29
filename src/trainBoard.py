@@ -331,9 +331,6 @@ class TrainBoard:
             return
         elif services[:3] == self.currentServices:
             logger.info(f"No change in services, not updating display")
-            logger.info(
-                f"Full retrieved service data: {json.dumps(services, default=str)}"
-            )
             return
         else:
             self.hideRows()
