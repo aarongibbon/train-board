@@ -153,8 +153,13 @@ class StationBoard:
         self.root.after(3000, self.switchOverlays)
 
     def scrollText(self):
-        for board in self.platform_boards:
-            board.incrementTextScroll(1)
+        logger.debug("scrollText callback running")
+        try:
+            for board in self.platform_boards:
+                board.incrementTextScroll(1)
+        except Exception:
+            logger.exception("scrollText failed")
+            raise
         self.root.after(250, self.scrollText)
 
     def updateClock(self):
@@ -271,16 +276,24 @@ class TrainBoard:
             )
 
     def incrementTextScroll(self, number):
+        text = self.rowB2text.get()
+        entry_xview = self.rowB2.xview()
+        logger.debug(
+            f"Platform {self.platform_number} incrementTextScroll: pos={self.scrollPosition}, len={len(text)}, xview={entry_xview}"
+        )
         if self.scrollPosition <= 0:
             self.scrollPosition += number
             return
-        elif self.scrollPosition == len(self.rowB2text.get()):
+        elif self.scrollPosition == len(text):
             self.scrollPosition = self.leadingScroll
-            self.rowB2.xview_scroll(-len(self.rowB2text.get()) - 1, UNITS)
+            self.rowB2.xview_scroll(-len(text) - 1, UNITS)
+            logger.info(
+                f"Platform {self.platform_number} calling points wrapped: resetting scroll to {self.leadingScroll}"
+            )
             return
         else:
             self.scrollPosition += number
-            self.rowB2.xview(MOVETO, self.scrollPosition / len(self.rowB2text.get()))
+            self.rowB2.xview(MOVETO, self.scrollPosition / len(text))
 
     def hideRows(self):
         self.rowA.grid_remove()
@@ -364,6 +377,10 @@ class TrainBoard:
                 self.scrollPosition = self.leadingScroll
                 self.rowC._num_carriages = data["carriages"]
                 draw_carriages(self.rowC)
+                self.rowB2.update_idletasks()
+                logger.info(
+                    f"Platform {self.platform_number} calling points set: {len(self.rowB2text.get())} chars, entry width={self.rowB2.winfo_width()}"
+                )
         except IndexError:
             logger.info(f"No service {service_index + 1} available")
             service_row.setNoService()
